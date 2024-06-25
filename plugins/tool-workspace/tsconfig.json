@@ -1,0 +1,7 @@
+{
+	"extends": ["@tsconfig/node22", "@tsconfig/strictest"],
+	"compilerOptions": {
+		"noEmit": true
+	},
+	"include": ["sources"]
+}

@@ -1,0 +1,19 @@
+{
+	"name": "@appthrust/root",
+	"version": "0.0.0-development",
+	"workspaces": [
+		"plugins/*",
+		"tools/*"
+	],
+	"packageManager": "yarn@4.3.1",
+	"engines": {
+		"node": "22.3.0"
+	},
+	"bin": {
+		"biome": "tools/toolbox/node_modules/@biomejs/biome/bin/biome",
+		"builder": "tools/toolbox/node_modules/@yarnpkg/builder/lib/cli.js",
+		"chokidar": "tools/toolbox/node_modules/chokidar-cli/index.js",
+		"tsc": "tools/toolbox/node_modules/typescript/bin/tsc",
+		"tsserver": "tools/toolbox/node_modules/typescript/bin/tsserver"
+	}
+}

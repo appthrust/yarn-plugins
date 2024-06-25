@@ -1,0 +1,11 @@
+$schema: https://moonrepo.dev/schemas/workspace.json
+
+projects:
+  - plugins/*
+  - tools/*
+
+vcs:
+  defaultBranch: main
+
+runner:
+  logRunningCommand: true

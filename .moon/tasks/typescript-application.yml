@@ -1,0 +1,30 @@
+$schema: https://moonrepo.dev/schemas/tasks.json
+
+tasks:
+  build-build:
+    command: builder build plugin --no-minify
+    platform: node
+    inputs:
+      - sources/**/*
+    outputs:
+      - bundles/**/*
+
+  build:
+    command: biome format --write "bundles/**/*"
+    deps:
+      - build-build
+    inputs:
+      - bundles/**/*
+    outputs:
+      - bundles/**/*
+
+  dev:
+    local: true
+    command: chokidar 'sources/**/*.ts' tsconfig.json package.json -c 'moon run build'
+    options:
+      shell: false
+
+  typecheck:
+    command: tsc
+    inputs:
+      - sources/**/*
