@@ -48,7 +48,7 @@ This plugin facilitates the Tool Workspace pattern with the following features:
 Install the plugin using the following command:
 
 ```shell
-yarn plugin import https://raw.githubusercontent.com/appthrust/yarn-plugins/main/plugins/tool-workspace/bundles/%40yarnpkg/plugin-tool-workspace.js
+yarn plugin import https://raw.githubusercontent.com/appthrust/yarn-plugins/tool-workspace-v1.0.0/plugins/tool-workspace/bundles/%40yarnpkg/plugin-tool-workspace.js
 ```
 
 ## Configuration
