@@ -215,19 +215,14 @@ function reportMovedDependencies(project: Project, options: InstallOptions): voi
 	);
 }
 
-let updatingTopLevelWorkspaceBins = false;
-
 async function updateTopLevelWorkspaceBins(project: Project, options: InstallOptions): Promise<void> {
-	if (updatingTopLevelWorkspaceBins) {
-		return;
-	}
 	const toolWorkspace = findToolWorkspace(project);
 	if (!toolWorkspace) {
 		return;
 	}
 	const { topLevelWorkspace } = project;
 	const oldBin = Object.fromEntries(topLevelWorkspace.manifest.bin.entries());
-	let reinstall = false;
+	let linksTools = false;
 	for (const [name, path] of topLevelWorkspace.manifest.bin) {
 		const binPath = ppath.join(topLevelWorkspace.cwd, path);
 		const symlinkPath = npath.toPortablePath(
@@ -242,7 +237,7 @@ async function updateTopLevelWorkspaceBins(project: Project, options: InstallOpt
 			}
 		}
 		if (!xfs.existsSync(symlinkPath)) {
-			reinstall = true;
+			linksTools = true;
 		}
 	}
 	const bins = await scriptUtils.getWorkspaceAccessibleBinaries(toolWorkspace);
@@ -252,23 +247,24 @@ async function updateTopLevelWorkspaceBins(project: Project, options: InstallOpt
 	}
 	const newBin = Object.fromEntries(topLevelWorkspace.manifest.bin.entries());
 	const assert = await import("node:assert/strict");
+	const banner = formatUtils.pretty(project.configuration, `[${pluginName}]`, formatUtils.Type.ID);
 	try {
 		// @ts-expect-error
 		assert.deepEqual(newBin, oldBin);
 	} catch (error) {
-		const banner = formatUtils.pretty(project.configuration, `[${pluginName}]`, formatUtils.Type.ID);
 		options.report.reportInfo(MessageName.UNNAMED, `${banner} Updating the top level workspace bins.`);
 		const diff = (error as import("node:assert/strict").AssertionError).message.split("\n").slice(3);
 		for (const line of diff) {
 			options.report.reportInfo(MessageName.UNNAMED, `${banner} ${line}`);
 		}
-		reinstall = true;
+		linksTools = true;
 	}
-	if (!reinstall) {
+	if (!linksTools) {
 		return;
 	}
-	updatingTopLevelWorkspaceBins = true;
-	await project.install(options);
+	options.report.reportInfo(MessageName.UNNAMED, `${banner} Linking tools.`);
+	await topLevelWorkspace.persistManifest();
+	await project.linkEverything(options);
 }
 
 declare module "@yarnpkg/core" {

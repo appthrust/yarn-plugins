@@ -241,18 +241,14 @@ module.exports = {
 					`${banner} The package ${dependencies} ${were} installed in the workspace ${pretty(toolWorkspaceIdent)}, instead of the workspace root ${name ? ` ${pretty(name)}` : ""} to keep the workspace root clean.`,
 				);
 			}
-			var updatingTopLevelWorkspaceBins = false;
 			async function updateTopLevelWorkspaceBins(project, options) {
-				if (updatingTopLevelWorkspaceBins) {
-					return;
-				}
 				const toolWorkspace = findToolWorkspace(project);
 				if (!toolWorkspace) {
 					return;
 				}
 				const { topLevelWorkspace } = project;
 				const oldBin = Object.fromEntries(topLevelWorkspace.manifest.bin.entries());
-				let reinstall = false;
+				let linksTools = false;
 				for (const [name, path] of topLevelWorkspace.manifest.bin) {
 					const binPath = import_fslib.ppath.join(topLevelWorkspace.cwd, path);
 					const symlinkPath = import_fslib.npath.toPortablePath(
@@ -275,7 +271,7 @@ module.exports = {
 						}
 					}
 					if (!import_fslib.xfs.existsSync(symlinkPath)) {
-						reinstall = true;
+						linksTools = true;
 					}
 				}
 				const bins = await import_core.scriptUtils.getWorkspaceAccessibleBinaries(toolWorkspace);
@@ -288,14 +284,14 @@ module.exports = {
 				}
 				const newBin = Object.fromEntries(topLevelWorkspace.manifest.bin.entries());
 				const assert = await import("node:assert/strict");
+				const banner = import_core.formatUtils.pretty(
+					project.configuration,
+					`[${pluginName}]`,
+					import_core.formatUtils.Type.ID,
+				);
 				try {
 					assert.deepEqual(newBin, oldBin);
 				} catch (error) {
-					const banner = import_core.formatUtils.pretty(
-						project.configuration,
-						`[${pluginName}]`,
-						import_core.formatUtils.Type.ID,
-					);
 					options.report.reportInfo(
 						import_core.MessageName.UNNAMED,
 						`${banner} Updating the top level workspace bins.`,
@@ -304,13 +300,14 @@ module.exports = {
 					for (const line of diff) {
 						options.report.reportInfo(import_core.MessageName.UNNAMED, `${banner} ${line}`);
 					}
-					reinstall = true;
+					linksTools = true;
 				}
-				if (!reinstall) {
+				if (!linksTools) {
 					return;
 				}
-				updatingTopLevelWorkspaceBins = true;
-				await project.install(options);
+				options.report.reportInfo(import_core.MessageName.UNNAMED, `${banner} Linking tools.`);
+				await topLevelWorkspace.persistManifest();
+				await project.linkEverything(options);
 			}
 			return __toCommonJS(sources_exports);
 		})();

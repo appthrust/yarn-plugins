@@ -13,6 +13,7 @@
 		"biome": "tools/toolbox/node_modules/@biomejs/biome/bin/biome",
 		"builder": "tools/toolbox/node_modules/@yarnpkg/builder/lib/cli.js",
 		"chokidar": "tools/toolbox/node_modules/chokidar-cli/index.js",
+		"husky": "tools/toolbox/node_modules/husky/bin.mjs",
 		"tsc": "tools/toolbox/node_modules/typescript/bin/tsc",
 		"tsserver": "tools/toolbox/node_modules/typescript/bin/tsserver"
 	}
