@@ -216,6 +216,9 @@ function reportMovedDependencies(project: Project, options: InstallOptions): voi
 }
 
 async function updateTopLevelWorkspaceBins(project: Project, options: InstallOptions): Promise<void> {
+	if (options.immutable) {
+		return;
+	}
 	const toolWorkspace = findToolWorkspace(project);
 	if (!toolWorkspace) {
 		return;
@@ -265,6 +268,7 @@ async function updateTopLevelWorkspaceBins(project: Project, options: InstallOpt
 	options.report.reportInfo(MessageName.UNNAMED, `${banner} Linking tools.`);
 	await topLevelWorkspace.persistManifest();
 	await project.linkEverything(options);
+	await project.persistLockfile();
 }
 
 declare module "@yarnpkg/core" {

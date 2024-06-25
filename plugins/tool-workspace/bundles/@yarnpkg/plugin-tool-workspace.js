@@ -242,6 +242,9 @@ module.exports = {
 				);
 			}
 			async function updateTopLevelWorkspaceBins(project, options) {
+				if (options.immutable) {
+					return;
+				}
 				const toolWorkspace = findToolWorkspace(project);
 				if (!toolWorkspace) {
 					return;
@@ -308,6 +311,7 @@ module.exports = {
 				options.report.reportInfo(import_core.MessageName.UNNAMED, `${banner} Linking tools.`);
 				await topLevelWorkspace.persistManifest();
 				await project.linkEverything(options);
+				await project.persistLockfile();
 			}
 			return __toCommonJS(sources_exports);
 		})();
